@@ -1,5 +1,7 @@
 # App files and folders
 .env
+coverage
+mocks
 storage/data
 
 # OS and IDE files and folders
