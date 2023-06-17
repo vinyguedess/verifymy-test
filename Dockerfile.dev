@@ -1,0 +1,11 @@
+FROM golang:1.18.10-bullseye
+
+RUN mkdir /credentials /workspace
+
+WORKDIR /workspace
+
+RUN go install github.com/golang/mock/mockgen@v1.6.0
+
+EXPOSE 8080
+
+ENTRYPOINT ["bash", "entrypoint.sh"]

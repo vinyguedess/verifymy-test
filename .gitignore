@@ -1,0 +1,8 @@
+# App files and folders
+.env
+storage/data
+
+# OS and IDE files and folders
+.idea
+.vscode
+nbproject
