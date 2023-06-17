@@ -10,6 +10,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -57,7 +58,7 @@ func (s *userRepositoryTestSuite) TestCreate() {
 		time.Hour * (24 * 365 * 18 * -1),
 	)
 
-	s.Run("Ok", func() {
+	s.Run("Success", func() {
 		s.SetupTest()
 
 		s.dbmock.ExpectBegin()
@@ -120,4 +121,62 @@ func (s *userRepositoryTestSuite) TestCreate() {
 		s.Nil(user)
 		s.NoError(s.dbmock.ExpectationsWereMet())
 	})
+}
+
+func (s *userRepositoryTestSuite) TestFindByEmail() {
+	tests := []struct {
+		description  string
+		email        string
+		errorInQuery error
+	}{
+		{
+			description: "Success",
+			email:       "email@email.com",
+		},
+		{
+			description:  "Error in query",
+			email:        "email@email.com",
+			errorInQuery: errors.New("error executing query"),
+		},
+	}
+
+	userId := uuid.New()
+
+	for _, test := range tests {
+		s.Run(test.description, func() {
+			s.SetupTest()
+
+			expectedQuery := s.dbmock.ExpectQuery(
+				regexp.QuoteMeta("SELECT * FROM `users` WHERE `email` = ? ORDER BY `users`.`id` LIMIT 1"),
+			).WithArgs(
+				test.email,
+			)
+
+			if test.errorInQuery == nil {
+				expectedQuery.WillReturnRows(
+					sqlmock.NewRows([]string{"id", "name", "date_of_birth", "email", "password", "address"}).
+						AddRow(
+							userId,
+							"name",
+							time.Now().UTC(),
+							test.email,
+							"hashedpass",
+							"Av. Paulista, 1000. São Paulo - SP",
+						),
+				)
+			} else {
+				expectedQuery.WillReturnError(test.errorInQuery)
+			}
+
+			user, err := s.userRepository.FindByEmail(s.ctx, test.email)
+			if test.errorInQuery != nil {
+				s.ErrorContains(err, test.errorInQuery.Error())
+				s.Nil(user)
+			} else {
+				s.NoError(err)
+				s.Equal(user.Name, "name")
+			}
+			s.NoError(s.dbmock.ExpectationsWereMet())
+		})
+	}
 }

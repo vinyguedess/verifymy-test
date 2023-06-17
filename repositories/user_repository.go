@@ -10,6 +10,7 @@ import (
 
 type UserRepository interface {
 	Create(context.Context, models.User) (*models.User, error)
+	FindByEmail(ctx context.Context, email string) (*models.User, error)
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
@@ -22,10 +23,20 @@ type userRepository struct {
 	db *gorm.DB
 }
 
-func (s *userRepository) Create(
+func (repo *userRepository) Create(
 	ctx context.Context, user models.User,
 ) (*models.User, error) {
-	err := s.db.WithContext(ctx).Create(&user).Error
+	err := repo.db.WithContext(ctx).Create(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (repo *userRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+	var user models.User
+	err := repo.db.WithContext(ctx).Where("email", email).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
