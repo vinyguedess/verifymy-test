@@ -61,3 +61,36 @@ func (t *Date) UnmarshalText(value string) error {
 func (Date) GormDataType() string {
 	return "DATE"
 }
+
+type SecretValue string
+
+func (sv *SecretValue) MarshalJSON() ([]byte, error) {
+	return []byte(`null`), nil
+}
+
+func (sv *SecretValue) Scan(value interface{}) error {
+	switch v := value.(type) {
+	case []byte:
+		return sv.UnmarshalText(string(v))
+	case string:
+		return sv.UnmarshalText(v)
+	case nil:
+		*sv = ""
+	default:
+		return fmt.Errorf("cannot sql.Scan() MyTime from: %#v", v)
+	}
+	return nil
+}
+
+func (sv *SecretValue) Value() (driver.Value, error) {
+	return driver.Value(sv), nil
+}
+
+func (sv *SecretValue) UnmarshalText(value string) error {
+	*sv = SecretValue(value)
+	return nil
+}
+
+func (*SecretValue) GormDataType() string {
+	return "VARCHAR"
+}

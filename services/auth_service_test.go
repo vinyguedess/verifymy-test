@@ -142,7 +142,7 @@ func (s *authServiceTestSuite) TestSignIn() {
 				time.Hour * (24 * 365 * 18 * -1),
 			),
 		),
-		Password: string(hashedPassword),
+		Password: models.SecretValue(hashedPassword),
 		Address:  "Jl. Raya Bogor",
 	}
 

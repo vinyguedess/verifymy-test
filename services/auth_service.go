@@ -41,12 +41,12 @@ func (s *authService) SignUp(
 		return nil, entities.NewEmailAlreadyInUseError(user.Email)
 	}
 
-	hashedPassword, err := s.hashPassword(user.Password)
+	hashedPassword, err := s.hashPassword(string(user.Password))
 	if err != nil {
 		return nil, err
 	}
 
-	user.Password = hashedPassword
+	user.Password = models.SecretValue(hashedPassword)
 	signedUser, err := s.userRepository.Create(ctx, user)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (s *authService) SignIn(
 		return nil, entities.NewInvalidEmailAndOrPasswordError()
 	}
 
-	if err = s.compareHashAndPassword(user.Password, password); err != nil {
+	if err = s.compareHashAndPassword(string(user.Password), password); err != nil {
 		return nil, entities.NewInvalidEmailAndOrPasswordError()
 	}
 
