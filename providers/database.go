@@ -1,7 +1,6 @@
 package providers
 
 import (
-	"context"
 	"os"
 
 	"gorm.io/driver/mysql"
@@ -38,8 +37,8 @@ func NewDBConnection(dialector gorm.Dialector) (*gorm.DB, error) {
 	return dbConn, nil
 }
 
-func NewDBDialector(ctx context.Context) gorm.Dialector {
-	driver, connString := getDriverAndConnString(ctx)
+func NewDBDialector() gorm.Dialector {
+	driver, connString := getDriverAndConnString()
 
 	if driver == "mysql" {
 		return mysql.New(mysql.Config{
@@ -51,10 +50,10 @@ func NewDBDialector(ctx context.Context) gorm.Dialector {
 	return sqlite.Open(connString)
 }
 
-func getDriverAndConnString(ctx context.Context) (string, string) {
+func getDriverAndConnString() (string, string) {
 	env := os.Getenv("ENV")
 	driver := getDriverByEnv(env)
-	connString := getConnStringByDriverAndEnv(ctx, env, driver)
+	connString := getConnStringByDriverAndEnv(env, driver)
 
 	return driver, connString
 }
@@ -72,9 +71,7 @@ func getDriverByEnv(env string) string {
 	return driver
 }
 
-func getConnStringByDriverAndEnv(
-	ctx context.Context, env string, driver string,
-) string {
+func getConnStringByDriverAndEnv(env string, driver string) string {
 	connString := os.Getenv("DB_CONN_STRING")
 	if env == "test" {
 		connString = "db.sqlite3"

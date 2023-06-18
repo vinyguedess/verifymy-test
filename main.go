@@ -13,6 +13,8 @@ import (
 	"go.uber.org/zap"
 
 	"verifymy-golang-test/handlers"
+	"verifymy-golang-test/repositories"
+	"verifymy-golang-test/services"
 )
 
 func main() {
@@ -35,14 +37,15 @@ func main() {
 			AsRoute(handlers.NewHealthCheckHandler),
 			AsRoute(handlers.NewSignUpHandler),
 		),
-
 		fx.WithLogger(
 			func(log *zap.Logger) fxevent.Logger {
 				return &fxevent.ZapLogger{Logger: log}
 			},
 		),
-
 		fx.Invoke(func(*http.Server) {}),
+		repositories.Module,
+		services.Module,
+		handlers.Module,
 	).Run()
 }
 
