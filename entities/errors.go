@@ -9,6 +9,19 @@ func (e *baseErrors) Error() string {
 	return e.Message
 }
 
+type EmailAlreadyInUseError struct {
+	*baseErrors
+}
+
+func NewEmailAlreadyInUseError(email string) error {
+	return &EmailAlreadyInUseError{
+		baseErrors: &baseErrors{
+			Message: "e-mail is already in use",
+			Details: []string{email},
+		},
+	}
+}
+
 type InvalidEmailAndOrPasswordError struct {
 	*baseErrors
 }

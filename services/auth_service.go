@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"os"
 	"time"
 
@@ -38,7 +37,7 @@ func (s *authService) SignUp(
 	if err != nil {
 		return nil, err
 	} else if foundUser != nil {
-		return nil, errors.New("e-mail is already in use")
+		return nil, entities.NewEmailAlreadyInUseError(user.Email)
 	}
 
 	hashedPassword, err := s.hashPassword(user.Password)
