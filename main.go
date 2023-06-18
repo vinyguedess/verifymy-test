@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 
 	"verifymy-golang-test/handlers"
+	"verifymy-golang-test/middlewares"
 	"verifymy-golang-test/repositories"
 	"verifymy-golang-test/services"
 )
@@ -37,6 +38,7 @@ func main() {
 			AsRoute(handlers.NewHealthCheckHandler),
 			AsRoute(handlers.NewSignUpHandler),
 			AsRoute(handlers.NewSignInHandler),
+			AsRoute(handlers.NewProfileHandler),
 		),
 		fx.WithLogger(
 			func(log *zap.Logger) fxevent.Logger {
@@ -93,10 +95,11 @@ func NewHTTPServer(lc fx.Lifecycle, mux *mux.Router, log *zap.Logger) *http.Serv
 }
 
 func NewServeMux(
-	logger *zap.Logger,
+	authService services.AuthService,
 	handlers []handlers.Handler,
 ) *mux.Router {
 	mux := mux.NewRouter()
+	mux.Use(middlewares.AuthMiddleware(authService))
 
 	for _, h := range handlers {
 		mux.Handle(h.Route(), h).Methods(h.Method()...)
