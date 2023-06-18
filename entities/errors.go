@@ -9,6 +9,20 @@ func (e *baseErrors) Error() string {
 	return e.Message
 }
 
+func NewUnexpectedError(err error) error {
+	return &baseErrors{
+		Message: "unexpected error",
+		Details: []string{err.Error()},
+	}
+}
+
+func NewError(message string, details []string) error {
+	return &baseErrors{
+		Message: message,
+		Details: details,
+	}
+}
+
 type EmailAlreadyInUseError struct {
 	*baseErrors
 }

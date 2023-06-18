@@ -33,6 +33,7 @@ func main() {
 			),
 
 			AsRoute(handlers.NewHealthCheckHandler),
+			AsRoute(handlers.NewSignUpHandler),
 		),
 
 		fx.WithLogger(
