@@ -9,7 +9,6 @@ import (
 	"verifymy-golang-test/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/mysql"
@@ -18,7 +17,6 @@ import (
 
 type userRepositoryTestSuite struct {
 	suite.Suite
-	ctrl           *gomock.Controller
 	ctx            context.Context
 	dbconn         *gorm.DB
 	dbmock         sqlmock.Sqlmock
@@ -30,7 +28,6 @@ func TestUserRepositoryTestSuite(t *testing.T) {
 }
 
 func (s *userRepositoryTestSuite) SetupTest() {
-	s.ctrl = gomock.NewController(s.T())
 	s.ctx = context.Background()
 
 	conn, dbmock, _ := sqlmock.New()
