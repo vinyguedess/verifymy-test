@@ -24,6 +24,11 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (d *Date) MarshalJSON() ([]byte, error) {
+	timeObj := time.Time(*d)
+	return []byte(fmt.Sprintf(`"%s"`, timeObj.Format(DateFormat))), nil
+}
+
 func (t *Date) Scan(value interface{}) error {
 	switch v := value.(type) {
 	case []byte:
