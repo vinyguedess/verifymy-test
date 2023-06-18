@@ -51,8 +51,10 @@ func (s *userRepositoryTestSuite) SetupTest() {
 }
 
 func (s *userRepositoryTestSuite) TestCreate() {
-	eighteenYearsAgo := time.Now().UTC().Add(
-		time.Hour * (24 * 365 * 18 * -1),
+	eighteenYearsAgo := models.Date(
+		time.Now().UTC().Add(
+			time.Hour * (24 * 365 * 18 * -1),
+		),
 	)
 
 	s.Run("Success", func() {

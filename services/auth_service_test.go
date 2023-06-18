@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/bcrypt"
 
-	mock_repositories "verifymy-golang-test/mocks"
+	mock_repositories "verifymy-golang-test/mocks/repositories"
 	"verifymy-golang-test/models"
 )
 
@@ -42,8 +42,10 @@ func (s *authServiceTestSuite) TestSignUp() {
 		ID:    uuid.New(),
 		Name:  "John Doe",
 		Email: "john.doe@gmail.com",
-		DateOfBirth: time.Now().UTC().Add(
-			time.Hour * (24 * 365 * 18 * -1),
+		DateOfBirth: models.Date(
+			time.Now().UTC().Add(
+				time.Hour * (24 * 365 * 18 * -1),
+			),
 		),
 		Password: "my-password",
 		Address:  "Jl. Raya Bogor",
@@ -52,8 +54,10 @@ func (s *authServiceTestSuite) TestSignUp() {
 	payload := models.User{
 		Name:  "John Doe",
 		Email: "john.doe@gmail.com",
-		DateOfBirth: time.Now().UTC().Add(
-			time.Hour * (24 * 365 * 18 * -1),
+		DateOfBirth: models.Date(
+			time.Now().UTC().Add(
+				time.Hour * (24 * 365 * 18 * -1),
+			),
 		),
 		Password: "my-password",
 		Address:  "Jl. Raya Bogor",
@@ -131,8 +135,10 @@ func (s *authServiceTestSuite) TestSignIn() {
 		ID:    uuid.New(),
 		Name:  "John Doe",
 		Email: "john.doe@gmail.com",
-		DateOfBirth: time.Now().UTC().Add(
-			time.Hour * (24 * 365 * 18 * -1),
+		DateOfBirth: models.Date(
+			time.Now().UTC().Add(
+				time.Hour * (24 * 365 * 18 * -1),
+			),
 		),
 		Password: string(hashedPassword),
 		Address:  "Jl. Raya Bogor",

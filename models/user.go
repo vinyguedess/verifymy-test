@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -10,9 +8,9 @@ import (
 type User struct {
 	ID          uuid.UUID `json:"id" gorm:"primarykey;type:varchar(36)"`
 	Name        string    `json:"name" gorm:"type:varchar(255)"`
-	DateOfBirth time.Time `json:"date_of_birth" gorm:"type:date"`
+	DateOfBirth Date      `json:"date_of_birth" gorm:"type:date"`
 	Email       string    `json:"email" gorm:"type:varchar(255)"`
-	Password    string    `json:"-" gorm:"type:varchar(255)"`
+	Password    string    `json:"password,omitempty" gorm:"type:varchar(255)"`
 	Address     string    `json:"address" gorm:"type:varchar(255)"`
 }
 
