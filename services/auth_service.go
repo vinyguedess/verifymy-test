@@ -16,6 +16,7 @@ import (
 
 type AuthService interface {
 	SignUp(ctx context.Context, user models.User) (*entities.Credentials, error)
+	SignIn(ctx context.Context, email string, password string) (*entities.Credentials, error)
 }
 
 func NewAuthService(
@@ -81,4 +82,27 @@ func (s *authService) getCredentialsFromUser(
 		AccessToken: accessTokenString,
 		ExpiresAt:   expiresAt,
 	}, nil
+}
+
+func (s *authService) SignIn(
+	ctx context.Context, email string, password string,
+) (*entities.Credentials, error) {
+	user, err := s.userRepository.FindByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	} else if user == nil {
+		return nil, errors.New("invalid e-mail and/or password")
+	}
+
+	if err = s.compareHashAndPassword(user.Password, password); err != nil {
+		return nil, errors.New("invalid e-mail and/or password")
+	}
+
+	return s.getCredentialsFromUser(user)
+}
+
+func (s *authService) compareHashAndPassword(
+	hashedPassword string, password string,
+) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
