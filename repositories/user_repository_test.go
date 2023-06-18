@@ -122,13 +122,19 @@ func (s *userRepositoryTestSuite) TestCreate() {
 
 func (s *userRepositoryTestSuite) TestFindByEmail() {
 	tests := []struct {
-		description  string
-		email        string
-		errorInQuery error
+		description         string
+		email               string
+		errorInQuery        error
+		noResultsFoundError bool
 	}{
 		{
 			description: "Success",
 			email:       "email@email.com",
+		},
+		{
+			description:         "No results found",
+			email:               "email@email.com",
+			noResultsFoundError: true,
 		},
 		{
 			description:  "Error in query",
@@ -149,7 +155,11 @@ func (s *userRepositoryTestSuite) TestFindByEmail() {
 				test.email,
 			)
 
-			if test.errorInQuery == nil {
+			if test.noResultsFoundError {
+				expectedQuery.WillReturnRows(
+					sqlmock.NewRows([]string{"id", "name", "date_of_birth", "email", "password", "address"}),
+				)
+			} else if test.errorInQuery == nil {
 				expectedQuery.WillReturnRows(
 					sqlmock.NewRows([]string{"id", "name", "date_of_birth", "email", "password", "address"}).
 						AddRow(
@@ -169,6 +179,9 @@ func (s *userRepositoryTestSuite) TestFindByEmail() {
 			if test.errorInQuery != nil {
 				s.ErrorContains(err, test.errorInQuery.Error())
 				s.Nil(user)
+			} else if test.noResultsFoundError {
+				s.Nil(user)
+				s.Nil(err)
 			} else {
 				s.NoError(err)
 				s.Equal(user.Name, "name")
