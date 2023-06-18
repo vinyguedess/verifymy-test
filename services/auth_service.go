@@ -91,11 +91,11 @@ func (s *authService) SignIn(
 	if err != nil {
 		return nil, err
 	} else if user == nil {
-		return nil, errors.New("invalid e-mail and/or password")
+		return nil, entities.NewInvalidEmailAndOrPasswordError()
 	}
 
 	if err = s.compareHashAndPassword(user.Password, password); err != nil {
-		return nil, errors.New("invalid e-mail and/or password")
+		return nil, entities.NewInvalidEmailAndOrPasswordError()
 	}
 
 	return s.getCredentialsFromUser(user)
