@@ -11,10 +11,10 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
-	"golang.org/x/crypto/bcrypt"
 
 	mock_repositories "verifymy-golang-test/mocks/repositories"
 	"verifymy-golang-test/models"
+	"verifymy-golang-test/utils"
 )
 
 type authServiceTestSuite struct {
@@ -131,7 +131,7 @@ func (s *authServiceTestSuite) TestSignUp() {
 
 func (s *authServiceTestSuite) TestSignIn() {
 	password := "my-password"
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, _ := utils.PasswordHash(password)
 
 	user := models.User{
 		ID:    uuid.New(),

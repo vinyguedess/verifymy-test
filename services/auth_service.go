@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 
 	"verifymy-golang-test/entities"
 	"verifymy-golang-test/models"
 	"verifymy-golang-test/repositories"
+	"verifymy-golang-test/utils"
 )
 
 type AuthService interface {
@@ -41,7 +41,7 @@ func (s *authService) SignUp(
 		return nil, entities.NewEmailAlreadyInUseError(user.Email)
 	}
 
-	hashedPassword, err := s.hashPassword(string(user.Password))
+	hashedPassword, err := utils.PasswordHash(string(user.Password))
 	if err != nil {
 		return nil, err
 	}
@@ -53,15 +53,6 @@ func (s *authService) SignUp(
 	}
 
 	return s.getCredentialsFromUser(signedUser)
-}
-
-func (s *authService) hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		return "", err
-	}
-
-	return string(bytes), nil
 }
 
 func (s *authService) getCredentialsFromUser(
@@ -94,17 +85,11 @@ func (s *authService) SignIn(
 		return nil, entities.NewInvalidEmailAndOrPasswordError()
 	}
 
-	if err = s.compareHashAndPassword(string(user.Password), password); err != nil {
+	if err = utils.PasswordCompare(string(user.Password), password); err != nil {
 		return nil, entities.NewInvalidEmailAndOrPasswordError()
 	}
 
 	return s.getCredentialsFromUser(user)
-}
-
-func (s *authService) compareHashAndPassword(
-	hashedPassword string, password string,
-) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
 func (s *authService) GetUserFromToken(
