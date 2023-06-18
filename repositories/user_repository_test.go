@@ -192,3 +192,74 @@ func (s *userRepositoryTestSuite) TestFindByEmail() {
 		})
 	}
 }
+
+func (s *userRepositoryTestSuite) TestFindById() {
+	userId := uuid.New()
+
+	tests := []struct {
+		description         string
+		userId              string
+		errorInQuery        error
+		noResultsFoundError bool
+	}{
+		{
+			description: "Success",
+			userId:      userId.String(),
+		},
+		{
+			description:         "No results found",
+			userId:              userId.String(),
+			noResultsFoundError: true,
+		},
+		{
+			description:  "Error in query",
+			userId:       userId.String(),
+			errorInQuery: errors.New("error executing query"),
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.description, func() {
+			s.SetupTest()
+
+			expectedQuery := s.dbmock.ExpectQuery(
+				regexp.QuoteMeta("SELECT * FROM `users` WHERE `id` = ? ORDER BY `users`.`id` LIMIT 1"),
+			).WithArgs(
+				test.userId,
+			)
+
+			if test.noResultsFoundError {
+				expectedQuery.WillReturnRows(
+					sqlmock.NewRows([]string{"id", "name", "date_of_birth", "email", "password", "address"}),
+				)
+			} else if test.errorInQuery == nil {
+				expectedQuery.WillReturnRows(
+					sqlmock.NewRows([]string{"id", "name", "date_of_birth", "email", "password", "address"}).
+						AddRow(
+							userId,
+							"name",
+							time.Now().UTC(),
+							"email@email.com",
+							"hashedpass",
+							"Av. Paulista, 1000. São Paulo - SP",
+						),
+				)
+			} else {
+				expectedQuery.WillReturnError(test.errorInQuery)
+			}
+
+			user, err := s.userRepository.FindById(s.ctx, test.userId)
+			if test.errorInQuery != nil {
+				s.ErrorContains(err, test.errorInQuery.Error())
+				s.Nil(user)
+			} else if test.noResultsFoundError {
+				s.Nil(user)
+				s.Nil(err)
+			} else {
+				s.NoError(err)
+				s.Equal(user.Name, "name")
+			}
+			s.NoError(s.dbmock.ExpectationsWereMet())
+		})
+	}
+}
