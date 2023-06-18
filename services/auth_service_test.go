@@ -3,9 +3,11 @@ package services
 import (
 	"context"
 	"errors"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
@@ -203,6 +205,104 @@ func (s *authServiceTestSuite) TestSignIn() {
 			} else {
 				s.NoError(err)
 				s.NotNil(credentials)
+			}
+		})
+	}
+}
+
+func (s *authServiceTestSuite) TestGetUserFromToken() {
+	s.T().Setenv("SECRET_KEY", "MY_SECRET_KEY")
+
+	userId := uuid.New()
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": userId,
+		"exp":     time.Now().UTC().Add(time.Minute * 3).Unix(),
+	})
+	accessTokenString, err := accessToken.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	if err != nil {
+		s.FailNow(err.Error())
+	}
+
+	invalidAccessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp": time.Now().UTC().Add(time.Minute * 3).Unix(),
+	})
+	invalidAccessTokenString, _ := invalidAccessToken.SignedString([]byte(os.Getenv("SECRET_KEY")))
+
+	user := models.User{
+		ID:    userId,
+		Name:  "John Doe",
+		Email: "john.doe@mail.com",
+		DateOfBirth: models.Date(
+			time.Now().UTC(),
+		),
+		Password: "my-password",
+		Address:  "Jl. Raya Bogor",
+	}
+
+	tests := []struct {
+		description             string
+		accessToken             string
+		findByIdResponse        *models.User
+		findByIdError           error
+		invalidAccessTokenError bool
+		missingUserIdClaimError bool
+		noUserFoundError        bool
+	}{
+		{
+			description:      "Success",
+			accessToken:      accessTokenString,
+			findByIdResponse: &user,
+		},
+		{
+			description:             "Invalid access token",
+			accessToken:             "invalid-access-token",
+			invalidAccessTokenError: true,
+		},
+		{
+			description:             "Token missing user_id in claims",
+			accessToken:             invalidAccessTokenString,
+			missingUserIdClaimError: true,
+		},
+		{
+			description:   "Failed to fetch user by ID",
+			accessToken:   accessTokenString,
+			findByIdError: errors.New("failed to fetch user by ID"),
+		},
+		{
+			description:      "User not found",
+			accessToken:      accessTokenString,
+			noUserFoundError: true,
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.description, func() {
+			s.SetupTest()
+
+			if !test.missingUserIdClaimError && !test.invalidAccessTokenError {
+				s.userRepositoryMock.EXPECT().FindById(s.ctx, userId.String()).Return(
+					test.findByIdResponse, test.findByIdError,
+				)
+			}
+
+			user, err := s.authService.GetUserFromToken(
+				s.ctx, test.accessToken,
+			)
+			if test.invalidAccessTokenError {
+				s.NotNil(err)
+				s.ErrorContains(err, "token is malformed: token contains an invalid number of segments")
+				s.Nil(user)
+			} else if test.missingUserIdClaimError || test.noUserFoundError {
+				s.Error(err)
+				s.ErrorContains(err, "invalid token")
+				s.Nil(user)
+			} else if test.findByIdError != nil {
+				s.Error(err)
+				s.ErrorContains(err, test.findByIdError.Error())
+				s.Nil(user)
+			} else {
+				s.NoError(err)
+				s.NotNil(user)
 			}
 		})
 	}

@@ -16,6 +16,7 @@ import (
 type AuthService interface {
 	SignUp(ctx context.Context, user models.User) (*entities.Credentials, error)
 	SignIn(ctx context.Context, email string, password string) (*entities.Credentials, error)
+	GetUserFromToken(ctx context.Context, accessToken string) (*models.User, error)
 }
 
 func NewAuthService(
@@ -104,4 +105,30 @@ func (s *authService) compareHashAndPassword(
 	hashedPassword string, password string,
 ) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
+
+func (s *authService) GetUserFromToken(
+	ctx context.Context, token string,
+) (*models.User, error) {
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("SECRET_KEY")), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	userID, ok := claims["user_id"].(string)
+	if !ok {
+		return nil, entities.NewInvalidTokenError()
+	}
+
+	user, err := s.userRepository.FindById(ctx, userID)
+	if err != nil {
+		return nil, err
+	} else if user == nil {
+		return nil, entities.NewInvalidTokenError()
+	}
+
+	return user, nil
 }

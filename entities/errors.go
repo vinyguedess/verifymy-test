@@ -47,3 +47,15 @@ func NewInvalidEmailAndOrPasswordError() error {
 		},
 	}
 }
+
+type InvalidTokenError struct {
+	*baseErrors
+}
+
+func NewInvalidTokenError() error {
+	return &InvalidTokenError{
+		baseErrors: &baseErrors{
+			Message: "invalid token",
+		},
+	}
+}
