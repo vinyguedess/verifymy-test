@@ -12,6 +12,7 @@ type UserRepository interface {
 	Create(context.Context, models.User) (*models.User, error)
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
 	FindById(ctx context.Context, id string) (*models.User, error)
+	UpdateAttributesByUserId(ctx context.Context, userId string, data models.User) error
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
@@ -61,4 +62,19 @@ func (repo *userRepository) FindById(ctx context.Context, id string) (*models.Us
 	}
 
 	return &user, nil
+}
+
+func (repo *userRepository) UpdateAttributesByUserId(
+	ctx context.Context, userId string, data models.User,
+) error {
+	err := repo.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("id", userId).
+		Updates(data).
+		Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

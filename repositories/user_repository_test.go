@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"regexp"
 	"testing"
@@ -260,6 +261,74 @@ func (s *userRepositoryTestSuite) TestFindById() {
 				s.Equal(user.Name, "name")
 			}
 			s.NoError(s.dbmock.ExpectationsWereMet())
+		})
+	}
+}
+
+func (s *userRepositoryTestSuite) TestUpdateAttributesByUserId() {
+	userId := uuid.New()
+
+	tests := []struct {
+		description   string
+		attributes    models.User
+		expectedQuery string
+		expectedArgs  []driver.Value
+		errorInQuery  error
+	}{
+		{
+			description:   "Success only name",
+			attributes:    models.User{Name: "name"},
+			expectedQuery: "UPDATE `users` SET `name`=? WHERE `id` = ?",
+			expectedArgs:  []driver.Value{"name", userId.String()},
+		},
+		{
+			description: "Success multiple attributes",
+			attributes: models.User{
+				Name: "name", Email: "hello@world.com",
+			},
+			expectedQuery: "UPDATE `users` SET `name`=?,`email`=? WHERE `id` = ?",
+			expectedArgs: []driver.Value{
+				"name", "hello@world.com", userId.String(),
+			},
+		},
+		{
+			description:   "Error in query",
+			attributes:    models.User{Name: "name"},
+			expectedQuery: "UPDATE `users` SET `name`=? WHERE `id` = ?",
+			expectedArgs:  []driver.Value{"name", userId.String()},
+			errorInQuery:  errors.New("error executing query"),
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.description, func() {
+			s.dbmock.ExpectBegin()
+
+			expectedQuery := s.dbmock.ExpectExec(
+				regexp.QuoteMeta(test.expectedQuery),
+			).WithArgs(
+				test.expectedArgs...,
+			)
+			if test.errorInQuery != nil {
+				expectedQuery.WillReturnError(test.errorInQuery)
+			} else {
+				expectedQuery.WillReturnResult(sqlmock.NewResult(1, 1))
+			}
+
+			if test.errorInQuery != nil {
+				s.dbmock.ExpectRollback()
+			} else {
+				s.dbmock.ExpectCommit()
+			}
+
+			err := s.userRepository.UpdateAttributesByUserId(
+				s.ctx, userId.String(), test.attributes,
+			)
+			if test.errorInQuery != nil {
+				s.ErrorContains(err, test.errorInQuery.Error())
+			} else {
+				s.NoError(err)
+			}
 		})
 	}
 }
