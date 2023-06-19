@@ -29,3 +29,7 @@ make dev
 ```
 
 It will run the application in `6073` port.
+
+## Documentation
+API documentation was done with Swagger. To access the it, run the application and access `http://localhost:6073/swagger/`. All endpoints are documented there, except for healtcheck endpoint that is a `GET /` where you can check
+service name and its version.
