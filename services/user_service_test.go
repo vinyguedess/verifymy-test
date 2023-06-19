@@ -138,3 +138,16 @@ func (s *userServiceTestSuite) TestUpdateProfile() {
 		})
 	}
 }
+
+func (s *userServiceTestSuite) TestDeleteById() {
+	userId := uuid.New()
+	ctx := context.Background()
+
+	s.userRepositoryMock.EXPECT().UpdateAttributesByUserId(
+		ctx, userId.String(), gomock.Any(),
+	).Return(nil)
+
+	err := s.service.DeleteById(ctx, userId.String())
+
+	s.NoError(err)
+}

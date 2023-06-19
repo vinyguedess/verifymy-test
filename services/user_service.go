@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
 	"verifymy-golang-test/common"
 	"verifymy-golang-test/entities"
@@ -13,6 +15,7 @@ import (
 type UserService interface {
 	FindById(ctx context.Context, userId string) (*models.User, error)
 	UpdateProfile(ctx context.Context, attributes models.User) error
+	DeleteById(ctx context.Context, userId string) error
 }
 
 type userService struct {
@@ -50,4 +53,14 @@ func (s *userService) UpdateProfile(ctx context.Context, attributes models.User)
 	}
 
 	return s.userRepository.UpdateAttributesByUserId(ctx, user.ID.String(), attributes)
+}
+
+func (s *userService) DeleteById(ctx context.Context, userId string) error {
+	return s.userRepository.UpdateAttributesByUserId(
+		ctx,
+		userId,
+		models.User{
+			DeletedAt: sql.NullTime{Time: time.Now().UTC()},
+		},
+	)
 }
