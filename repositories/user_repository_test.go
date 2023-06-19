@@ -71,6 +71,7 @@ func (s *userRepositoryTestSuite) TestCreate() {
 			"email",
 			"hashedpass",
 			"Av. Paulista, 1000. São Paulo - SP",
+			nil,
 		).WillReturnResult(sqlmock.NewResult(1, 1))
 		s.dbmock.ExpectCommit()
 
@@ -103,6 +104,7 @@ func (s *userRepositoryTestSuite) TestCreate() {
 			"email",
 			"hashedpass",
 			"Av. Paulista, 1000. São Paulo - SP",
+			nil,
 		).WillReturnError(errors.New("error executing query"))
 		s.dbmock.ExpectRollback()
 
