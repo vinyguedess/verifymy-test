@@ -73,13 +73,22 @@ func (repo *userRepository) FindAll(
 	ctx context.Context, limit int, offset int,
 ) ([]models.User, int64, error) {
 	var users []models.User
-	err := repo.db.WithContext(ctx).Limit(limit).Offset(offset).Find(&users).Error
+	err := repo.db.WithContext(ctx).
+		Where("deleted_at IS NULL").
+		Limit(limit).
+		Offset(offset).
+		Find(&users).
+		Error
 	if err != nil {
 		return nil, 0, err
 	}
 
 	var totalResults int64
-	err = repo.db.WithContext(ctx).Model(&models.User{}).Count(&totalResults).Error
+	err = repo.db.WithContext(ctx).
+		Where("deleted_at IS NULL").
+		Model(&models.User{}).
+		Count(&totalResults).
+		Error
 	if err != nil {
 		return nil, 0, err
 	}

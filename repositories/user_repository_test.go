@@ -220,7 +220,7 @@ func (s *userRepositoryTestSuite) TestFindAll() {
 	for _, test := range tests {
 		s.Run(test.description, func() {
 			expectedGetUsersQuery := s.dbmock.ExpectQuery(
-				regexp.QuoteMeta("SELECT * FROM `users` LIMIT 10"),
+				regexp.QuoteMeta("SELECT * FROM `users` WHERE deleted_at IS NULL LIMIT 10"),
 			)
 			if test.getUsersError {
 				expectedGetUsersQuery.WillReturnError(errors.New("error executing query"))
@@ -241,7 +241,7 @@ func (s *userRepositoryTestSuite) TestFindAll() {
 
 			if !test.getUsersError {
 				expectedCountUsersQuery := s.dbmock.ExpectQuery(
-					regexp.QuoteMeta("SELECT count(*) FROM `users`"),
+					regexp.QuoteMeta("SELECT count(*) FROM `users` WHERE deleted_at IS NULL"),
 				)
 				if test.countUsersError {
 					expectedCountUsersQuery.WillReturnError(errors.New("error executing count query"))
