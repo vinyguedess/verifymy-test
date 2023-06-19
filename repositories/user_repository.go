@@ -53,7 +53,11 @@ func (repo *userRepository) FindByEmail(ctx context.Context, email string) (*mod
 
 func (repo *userRepository) FindById(ctx context.Context, id string) (*models.User, error) {
 	var user models.User
-	err := repo.db.WithContext(ctx).Where("id", id).First(&user).Error
+	err := repo.db.WithContext(ctx).
+		Where("id", id).
+		Where("deleted_at IS NULL").
+		First(&user).
+		Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
