@@ -14,6 +14,7 @@ pre-test-build:
 	rm -rf mocks
 	mockgen -source=./repositories/user_repository.go -destination=./mocks/repositories/user_repository.go
 	mockgen -source=./services/auth_service.go -destination=./mocks/services/auth_service.go
+	mockgen -source=./services/user_service.go -destination=./mocks/services/user_service.go
 
 test:
 	make pre-test

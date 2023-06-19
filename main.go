@@ -39,6 +39,7 @@ func main() {
 			AsRoute(handlers.NewSignUpHandler),
 			AsRoute(handlers.NewSignInHandler),
 			AsRoute(handlers.NewShowProfileHandler),
+			AsRoute(handlers.NewUpdateProfileHandler),
 		),
 		fx.WithLogger(
 			func(log *zap.Logger) fxevent.Logger {
