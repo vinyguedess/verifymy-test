@@ -81,6 +81,47 @@ func (s *userServiceTestSuite) TestFindById() {
 	}
 }
 
+func (s *userServiceTestSuite) TestFindAll() {
+	tests := []struct {
+		description    string
+		limit          int
+		page           int
+		expectedOffset int
+	}{
+		{
+			description:    "Page 1 Limit 10",
+			limit:          10,
+			page:           1,
+			expectedOffset: 0,
+		},
+		{
+			description:    "Page 2 Limit 5",
+			limit:          10,
+			page:           2,
+			expectedOffset: 10,
+		},
+		{
+			description:    "Page 3 Limit 7",
+			limit:          7,
+			page:           3,
+			expectedOffset: 14,
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.description, func() {
+			ctx := context.Background()
+
+			s.userRepositoryMock.EXPECT().FindAll(ctx, test.limit, test.expectedOffset).Return(
+				[]models.User{}, int64(0), nil,
+			)
+
+			_, _, err := s.service.FindAll(ctx, test.limit, test.page)
+			s.NoError(err)
+		})
+	}
+}
+
 func (s *userServiceTestSuite) TestUpdateProfile() {
 	userId := uuid.New()
 	user := &models.User{

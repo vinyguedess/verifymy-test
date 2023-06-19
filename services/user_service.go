@@ -14,6 +14,7 @@ import (
 
 type UserService interface {
 	FindById(ctx context.Context, userId string) (*models.User, error)
+	FindAll(ctx context.Context, limit int, page int) ([]models.User, int64, error)
 	UpdateProfile(ctx context.Context, attributes models.User) error
 	DeleteById(ctx context.Context, userId string) error
 }
@@ -39,6 +40,11 @@ func (s *userService) FindById(ctx context.Context, userId string) (*models.User
 	}
 
 	return user, nil
+}
+
+func (s *userService) FindAll(ctx context.Context, limit int, page int) ([]models.User, int64, error) {
+	offset := (page - 1) * limit
+	return s.userRepository.FindAll(ctx, limit, offset)
 }
 
 func (s *userService) UpdateProfile(ctx context.Context, attributes models.User) error {
