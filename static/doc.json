@@ -93,6 +93,44 @@
                     }
                 }
             }
+        },
+        "/users": {
+            "get": {
+                "summary": "List users",
+                "description": "List registered users",
+                "tags": ["Users"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "type": "integer",
+                        "description": "Amount of expected results in page",
+                        "default": 10
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "type": "integer",
+                        "description": "Page selected to fetch results from",
+                        "default": 1
+                    }
+                ],
+                "security": [
+                    {"Bearer":[]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully signed up",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
