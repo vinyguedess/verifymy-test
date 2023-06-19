@@ -42,6 +42,7 @@ func main() {
 			AsRoute(handlers.NewShowProfileHandler),
 			AsRoute(handlers.NewUpdateProfileHandler),
 			AsRoute(handlers.NewListUsersHandler),
+			AsRoute(handlers.NewDeleteUserByIdHandler),
 		),
 		fx.WithLogger(
 			func(log *zap.Logger) fxevent.Logger {

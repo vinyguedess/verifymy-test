@@ -99,7 +99,7 @@
                     }
                 }
             },
-            "patch": {
+            "put": {
                 "summary": "Update profile",
                 "description": "Update signed in own profile",
                 "tags": ["Profile"],
@@ -164,6 +164,34 @@
                                 "$ref": "#/definitions/User"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}": {
+            "delete": {
+                "summary": "Delete user by ID",
+                "description": "Delete user by ID",
+                "tags": ["Users"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "user_id",
+                        "type": "string",
+                        "description": "User ID"
+                    }
+                ],
+                "security": [{"Bearer":[]}],
+                "responses": {
+                    "204": {
+                        "description": "Successfully deleted user"
+                    },
+                    "404": {
+                        "$ref": "#/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/responses/UnprocessableEntityError"
                     }
                 }
             }
@@ -239,24 +267,6 @@
         }
     },
     "responses": {
-        "UnprocessableEntityError": {
-            "description": "Unprocessable entity error",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "details": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "required": ["message", "details"]
-            }
-        },
         "MalformedAuthorizationHeaderError": {
             "description": "Malformed Authorization header",
             "schema": {
@@ -279,6 +289,42 @@
                     }
                 },
                 "required": ["message"]
+            }
+        },
+        "NotFoundError": {
+            "description": "Resource not found",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "details": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": ["message", "details"]
+            }
+        },
+        "UnprocessableEntityError": {
+            "description": "Unprocessable entity error",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "details": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": ["message", "details"]
             }
         }
     }
