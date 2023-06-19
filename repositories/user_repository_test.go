@@ -155,7 +155,7 @@ func (s *userRepositoryTestSuite) TestFindByEmail() {
 			s.SetupTest()
 
 			expectedQuery := s.dbmock.ExpectQuery(
-				regexp.QuoteMeta("SELECT * FROM `users` WHERE `email` = ? ORDER BY `users`.`id` LIMIT 1"),
+				regexp.QuoteMeta("SELECT * FROM `users` WHERE `email` = ? AND deleted_at IS NULL ORDER BY `users`.`id` LIMIT 1"),
 			).WithArgs(
 				test.email,
 			)
