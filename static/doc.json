@@ -77,8 +77,8 @@
         },
         "/profile": {
             "get": {
-                "summary": "Show signed in profile",
-                "description": "Show signed in profile",
+                "summary": "Show credentials owner profile",
+                "description": "Show credentials owner profile",
                 "tags": ["Profile"],
                 "produces": ["application/json"],
                 "security": [
@@ -86,7 +86,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully signed up",
+                        "description": "Successfully fetched own profile",
                         "schema": {
                             "$ref": "#/definitions/User"
                         }
@@ -157,11 +157,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully signed up",
+                        "description": "List registered users",
                         "schema": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/User"
+                            }
+                        },
+                        "headers": {
+                            "X-Total-Count": {
+                                "type": "integer",
+                                "description": "Total amount of users registered"   
                             }
                         }
                     }
