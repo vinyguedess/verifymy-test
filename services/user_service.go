@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"verifymy-golang-test/common"
+	"verifymy-golang-test/entities"
 	"verifymy-golang-test/models"
 	"verifymy-golang-test/repositories"
 	"verifymy-golang-test/utils"
 )
 
 type UserService interface {
+	FindById(ctx context.Context, userId string) (*models.User, error)
 	UpdateProfile(ctx context.Context, attributes models.User) error
 }
 
@@ -23,6 +25,17 @@ func NewUserService(
 	return &userService{
 		userRepository: userRepository,
 	}
+}
+
+func (s *userService) FindById(ctx context.Context, userId string) (*models.User, error) {
+	user, err := s.userRepository.FindById(ctx, userId)
+	if err != nil {
+		return nil, err
+	} else if user == nil {
+		return nil, entities.NewItemNotFoundError("User", userId)
+	}
+
+	return user, nil
 }
 
 func (s *userService) UpdateProfile(ctx context.Context, attributes models.User) error {

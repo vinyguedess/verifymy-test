@@ -32,6 +32,55 @@ func (s *userServiceTestSuite) SetupTest() {
 	s.service = NewUserService(s.userRepositoryMock)
 }
 
+func (s *userServiceTestSuite) TestFindById() {
+	userId := uuid.New()
+	user := &models.User{
+		ID: userId,
+	}
+
+	tests := []struct {
+		description      string
+		findByIdResponse *models.User
+		findByIdError    error
+		userNotFound     bool
+	}{
+		{
+			description:      "Success",
+			findByIdResponse: user,
+		},
+		{
+			description:   "Error finding user by id",
+			findByIdError: errors.New("error"),
+		},
+		{
+			description:  "User not found",
+			userNotFound: true,
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.description, func() {
+			ctx := context.Background()
+
+			s.userRepositoryMock.EXPECT().FindById(ctx, userId.String()).Return(
+				test.findByIdResponse, test.findByIdError,
+			)
+
+			foundUser, err := s.service.FindById(ctx, userId.String())
+			if test.findByIdError != nil {
+				s.Error(err)
+				s.Nil(foundUser)
+			} else if test.userNotFound {
+				s.Error(err)
+				s.ErrorContains(err, "User not found")
+			} else {
+				s.NoError(err)
+				s.Equal(test.findByIdResponse, foundUser)
+			}
+		})
+	}
+}
+
 func (s *userServiceTestSuite) TestUpdateProfile() {
 	userId := uuid.New()
 	user := &models.User{

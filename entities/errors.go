@@ -1,5 +1,7 @@
 package entities
 
+import "fmt"
+
 type baseErrors struct {
 	Message string   `json:"message"`
 	Details []string `json:"details"`
@@ -56,6 +58,19 @@ func NewInvalidTokenError() error {
 	return &InvalidTokenError{
 		baseErrors: &baseErrors{
 			Message: "invalid token",
+		},
+	}
+}
+
+type ItemNotFoundError struct {
+	*baseErrors
+}
+
+func NewItemNotFoundError(itemType string, itemId string) error {
+	return &ItemNotFoundError{
+		baseErrors: &baseErrors{
+			Message: fmt.Sprintf("%s not found", itemType),
+			Details: []string{itemId},
 		},
 	}
 }
