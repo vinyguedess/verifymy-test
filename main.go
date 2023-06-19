@@ -8,6 +8,7 @@ import (
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -102,6 +103,19 @@ func NewServeMux(
 ) *mux.Router {
 	mux := mux.NewRouter()
 	mux.Use(middlewares.AuthMiddleware(authService))
+
+	mux.PathPrefix("/static/").Handler(
+		http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))),
+	)
+
+	mux.PathPrefix("/swagger/").Handler(
+		httpSwagger.Handler(
+			httpSwagger.URL("/static/doc.json"),
+			httpSwagger.DeepLinking(true),
+			httpSwagger.DocExpansion("none"),
+			httpSwagger.DomID("swagger-ui"),
+		),
+	).Methods(http.MethodGet)
 
 	for _, h := range handlers {
 		mux.Handle(h.Route(), h).Methods(h.Method()...)

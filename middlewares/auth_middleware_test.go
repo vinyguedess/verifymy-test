@@ -99,7 +99,7 @@ func (s *authMiddlewareTestSuite) TestAuthMiddleware() {
 			description:         "Malformed authorization header",
 			route:               "/me",
 			authorizationHeader: "Bearer",
-			expectedStatusCode:  http.StatusUnauthorized,
+			expectedStatusCode:  http.StatusBadRequest,
 			expectedResponse: map[string]interface{}{
 				"message": "Malformed authorization header",
 			},
@@ -109,7 +109,7 @@ func (s *authMiddlewareTestSuite) TestAuthMiddleware() {
 			description:         "Invalid token type",
 			route:               "/me",
 			authorizationHeader: "Basic ACCESS_TOKEN",
-			expectedStatusCode:  http.StatusUnauthorized,
+			expectedStatusCode:  http.StatusBadRequest,
 			expectedResponse: map[string]interface{}{
 				"message": "Authorization header must be a bearer token",
 			},

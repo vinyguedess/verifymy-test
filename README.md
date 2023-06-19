@@ -29,38 +29,3 @@ make dev
 ```
 
 It will run the application in `6073` port.
-
-## Endpoints
-
-### Sign up
-**POST** `/auth/sign_up`
-
-#### Request
-| Attribute | Type | Description |
-| --- | --- | --- |
-| name | string | User name |
-| date_of_birth | string | User date of birth (YYYY-MM-DD) |
-| email | string | User email |
-| password | string | User password |
-| address | string | User address |
-
-#### Response
-| Attribute | Type | Description |
-| --- | --- | --- |
-| access_token | string | Token used for private routes |
-| expires_at | integer | Token expiration date |
-
-### Sign in
-**POST** `/auth/sign_in`
-
-#### Request
-| Attribute | Type | Description |
-| --- | --- | --- |
-| email | string | User email |
-| password | string | User password |
-
-#### Response
-| Attribute | Type | Description |
-| --- | --- | --- |
-| access_token | string | Token used for private routes |
-| expires_at | integer | Token expiration date |

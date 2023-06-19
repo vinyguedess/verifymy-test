@@ -14,6 +14,12 @@ var ALLOWED_PATHS = []interface{}{
 	"/",
 	"/auth/sign_in",
 	"/auth/sign_up",
+	"/static/doc.json",
+	"/swagger/",
+	"/swagger/index.html",
+	"/swagger/swagger-ui.css",
+	"/swagger/swagger-ui-bundle.js",
+	"/swagger/swagger-ui-standalone-preset.js",
 }
 
 func AuthMiddleware(
@@ -25,14 +31,14 @@ func AuthMiddleware(
 				authorizationHeader := strings.Split(r.Header.Get("Authorization"), " ")
 				if len(authorizationHeader) != 2 {
 					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusUnauthorized)
+					w.WriteHeader(http.StatusBadRequest)
 					w.Write([]byte(`{"message": "Malformed authorization header"}`))
 					return
 				}
 
 				if strings.ToLower(authorizationHeader[0]) != "bearer" {
 					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusUnauthorized)
+					w.WriteHeader(http.StatusBadRequest)
 					w.Write([]byte(`{"message": "Authorization header must be a bearer token"}`))
 					return
 				}

@@ -1,0 +1,193 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "VerifyMy Test API",
+        "description": "This is the documentation for verifymy-test API.",
+        "contact": {
+            "name": "Vinicius Guedes",
+            "url": "https://github.com/verifymy-test",
+            "email": "viniciusgued@gmail.com"
+        },
+        "version": "1.0.1"
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",
+            "description": "Prefix the value with \"Bearer\" to indicate authorization type"
+        }
+    },
+    "paths": {
+        "/auth/sign_in": {
+            "post": {
+                "summary": "Get credentials",
+                "description": "Authenticate into the app",
+                "tags": ["Auth"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/SignInPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully signed in",
+                        "schema": {
+                            "$ref": "#/definitions/Credentials"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/sign_up": {
+            "post": {
+                "summary": "Sign up and get credentials",
+                "description": "Create a new user and get credentials",
+                "tags": ["Auth"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/SignUpPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully signed up",
+                        "schema": {
+                            "$ref": "#/definitions/Credentials"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile": {
+            "get": {
+                "summary": "Show signed in profile",
+                "description": "Show signed in profile",
+                "tags": ["Profile"],
+                "produces": ["application/json"],
+                "security": [
+                    {"Bearer":[]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully signed up",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/responses/MalformedAuthorizationHeaderError"
+                    },
+                    "401": {
+                        "$ref": "#/responses/UnauthorizedError"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "User": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                },
+                "address": {
+                    "type": "string"
+                }
+            },
+            "required": ["name", "date_of_birth", "email", "password", "address"]
+        },
+        "Credentials": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "integer"
+                }
+            },
+            "required": ["access_token", "expires_at"]
+        },
+        "SignInPayload": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "required": ["email", "password"]
+        },
+        "SignUpPayload": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                }
+            },
+            "required": ["name", "date_of_birth", "email", "password", "address"]
+        }
+    },
+    "responses": {
+        "MalformedAuthorizationHeaderError": {
+            "description": "Malformed Authorization header",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": ["message"]
+            }
+        },
+        "UnauthorizedError": {
+            "description": "Unauthorized",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": ["message"]
+            }
+        }
+    }
+}
