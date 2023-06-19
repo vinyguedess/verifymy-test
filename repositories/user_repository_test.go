@@ -194,6 +194,77 @@ func (s *userRepositoryTestSuite) TestFindByEmail() {
 	}
 }
 
+func (s *userRepositoryTestSuite) TestFindAll() {
+	userId := uuid.New()
+
+	tests := []struct {
+		description     string
+		getUsersError   bool
+		countUsersError bool
+	}{
+		{
+			description: "Success",
+		},
+		{
+			description:   "Error getting users",
+			getUsersError: true,
+		},
+		{
+			description:     "Error counting users",
+			countUsersError: true,
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.description, func() {
+			expectedGetUsersQuery := s.dbmock.ExpectQuery(
+				regexp.QuoteMeta("SELECT * FROM `users` LIMIT 10"),
+			)
+			if test.getUsersError {
+				expectedGetUsersQuery.WillReturnError(errors.New("error executing query"))
+			} else {
+				expectedGetUsersQuery.WillReturnRows(
+					sqlmock.NewRows(
+						[]string{"id", "name", "date_of_birth", "email", "password", "address"},
+					).AddRow(
+						userId,
+						"Stephen Curry",
+						time.Date(1988, 3, 14, 0, 0, 0, 0, time.UTC),
+						"stephen.curry@nba.com",
+						"hashedpass",
+						"Av. Paulista, 1000. São Paulo - SP",
+					),
+				)
+			}
+
+			if !test.getUsersError {
+				expectedCountUsersQuery := s.dbmock.ExpectQuery(
+					regexp.QuoteMeta("SELECT count(*) FROM `users`"),
+				)
+				if test.countUsersError {
+					expectedCountUsersQuery.WillReturnError(errors.New("error executing count query"))
+				} else {
+					expectedCountUsersQuery.WillReturnRows(
+						sqlmock.NewRows([]string{"count"}).AddRow(1),
+					)
+				}
+			}
+
+			result, totalResults, err := s.userRepository.FindAll(s.ctx, 10, 0)
+			if test.getUsersError || test.countUsersError {
+				s.Error(err)
+				s.Nil(result)
+				s.Equal(int64(0), totalResults)
+			} else {
+				s.NoError(err)
+				s.Equal(int64(1), totalResults)
+				s.Equal(result[0].Name, "Stephen Curry")
+			}
+			s.NoError(s.dbmock.ExpectationsWereMet())
+		})
+	}
+}
+
 func (s *userRepositoryTestSuite) TestFindById() {
 	userId := uuid.New()
 

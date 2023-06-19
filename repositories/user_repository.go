@@ -12,6 +12,7 @@ type UserRepository interface {
 	Create(context.Context, models.User) (*models.User, error)
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
 	FindById(ctx context.Context, id string) (*models.User, error)
+	FindAll(ctx context.Context, limit int, offset int) ([]models.User, int64, error)
 	UpdateAttributesByUserId(ctx context.Context, userId string, data models.User) error
 }
 
@@ -62,6 +63,24 @@ func (repo *userRepository) FindById(ctx context.Context, id string) (*models.Us
 	}
 
 	return &user, nil
+}
+
+func (repo *userRepository) FindAll(
+	ctx context.Context, limit int, offset int,
+) ([]models.User, int64, error) {
+	var users []models.User
+	err := repo.db.WithContext(ctx).Limit(limit).Offset(offset).Find(&users).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var totalResults int64
+	err = repo.db.WithContext(ctx).Model(&models.User{}).Count(&totalResults).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, totalResults, nil
 }
 
 func (repo *userRepository) UpdateAttributesByUserId(
