@@ -4,6 +4,8 @@
 Test API for VerifyMy interview process.
 
 ## Getting started
+First of all you need to check environment variables that are loaded from a `.env` file which is not versioned for security purposes. There's a file called `.env.default` which you can copy into `.env` and change its values if you want to run the application locally.
+
 To ease everything, project is executed in a golang container. To run it, you need to have docker installed in your machine.
 
 ### Lifting up the container
