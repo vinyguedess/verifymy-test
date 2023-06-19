@@ -38,7 +38,7 @@ func main() {
 			AsRoute(handlers.NewHealthCheckHandler),
 			AsRoute(handlers.NewSignUpHandler),
 			AsRoute(handlers.NewSignInHandler),
-			AsRoute(handlers.NewProfileHandler),
+			AsRoute(handlers.NewShowProfileHandler),
 		),
 		fx.WithLogger(
 			func(log *zap.Logger) fxevent.Logger {

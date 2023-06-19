@@ -16,31 +16,31 @@ import (
 	"verifymy-golang-test/models"
 )
 
-type profileHandlerTestSuite struct {
+type showProfileHandlerTestSuite struct {
 	suite.Suite
 	ctrl    *gomock.Controller
 	handler Handler
 }
 
-func TestProfileHandlerTestSuite(t *testing.T) {
+func TestShowProfileHandlerTestSuite(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(profileHandlerTestSuite))
+	suite.Run(t, new(showProfileHandlerTestSuite))
 }
 
-func (s *profileHandlerTestSuite) SetupTest() {
+func (s *showProfileHandlerTestSuite) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
-	s.handler = NewProfileHandler()
+	s.handler = NewShowProfileHandler()
 }
 
-func (s *profileHandlerTestSuite) TestMethod() {
+func (s *showProfileHandlerTestSuite) TestMethod() {
 	s.Equal([]string{"GET"}, s.handler.Method())
 }
 
-func (s *profileHandlerTestSuite) TestRoute() {
+func (s *showProfileHandlerTestSuite) TestRoute() {
 	s.Equal("/profile", s.handler.Route())
 }
 
-func (s *profileHandlerTestSuite) TestServeHTTP() {
+func (s *showProfileHandlerTestSuite) TestServeHTTP() {
 	userId := uuid.New()
 	user := &models.User{
 		ID:   userId,

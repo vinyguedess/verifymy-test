@@ -7,22 +7,22 @@ import (
 	"verifymy-golang-test/models"
 )
 
-type profileHandler struct {
+type showProfileHandler struct {
 }
 
-func NewProfileHandler() Handler {
-	return &profileHandler{}
+func NewShowProfileHandler() Handler {
+	return &showProfileHandler{}
 }
 
-func (h *profileHandler) Method() []string {
+func (h *showProfileHandler) Method() []string {
 	return []string{"GET"}
 }
 
-func (h *profileHandler) Route() string {
+func (h *showProfileHandler) Route() string {
 	return "/profile"
 }
 
-func (h *profileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *showProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user := r.Context().Value(common.AuthUser).(*models.User)
